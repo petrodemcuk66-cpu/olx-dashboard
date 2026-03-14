@@ -343,7 +343,6 @@ with tab1:
         }),
         use_container_width=True, hide_index=True, height=380,
         column_config={
-            "url": st.column_config.LinkColumn("Посилання"),
             "Ціна (грн)": st.column_config.NumberColumn(format="₴%d"),
         },
     )
