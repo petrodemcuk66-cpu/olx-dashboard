@@ -21,12 +21,17 @@ WHITE    = (255, 255, 255)
 def _find_font() -> tuple[str, str]:
     """Знаходить шрифт з підтримкою кирилиці."""
 
-    # 1. DejaVu поруч зі скриптом (якщо поклав вручну)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    local_r = os.path.join(script_dir, "DejaVuSansCondensed.ttf")
-    local_b = os.path.join(script_dir, "DejaVuSansCondensed-Bold.ttf")
-    if os.path.isfile(local_r) and os.path.isfile(local_b):
-        return local_r, local_b
+
+    # 1. DejaVu поруч зі скриптом — шукаємо всі варіанти назв
+    for rname, bname in [
+        ("DejaVuSans.ttf",          "DejaVuSans-Bold.ttf"),
+        ("DejaVuSansCondensed.ttf", "DejaVuSansCondensed-Bold.ttf"),
+    ]:
+        r = os.path.join(script_dir, rname)
+        b = os.path.join(script_dir, bname)
+        if os.path.isfile(r) and os.path.isfile(b):
+            return r, b
 
     # 2. DejaVu всередині пакету fpdf2
     try:
@@ -34,8 +39,8 @@ def _find_font() -> tuple[str, str]:
         fpdf_dir = os.path.dirname(fpdf_module.__file__)
         for folder in [os.path.join(fpdf_dir, "fonts"), fpdf_dir]:
             for rname, bname in [
-                ("DejaVuSansCondensed.ttf", "DejaVuSansCondensed-Bold.ttf"),
                 ("DejaVuSans.ttf",          "DejaVuSans-Bold.ttf"),
+                ("DejaVuSansCondensed.ttf", "DejaVuSansCondensed-Bold.ttf"),
             ]:
                 r = os.path.join(folder, rname)
                 b = os.path.join(folder, bname)
@@ -45,8 +50,8 @@ def _find_font() -> tuple[str, str]:
         for root, _, files in os.walk(fpdf_dir):
             ttfs = {f: os.path.join(root, f) for f in files if f.endswith(".ttf")}
             for rname, bname in [
-                ("DejaVuSansCondensed.ttf", "DejaVuSansCondensed-Bold.ttf"),
                 ("DejaVuSans.ttf",          "DejaVuSans-Bold.ttf"),
+                ("DejaVuSansCondensed.ttf", "DejaVuSansCondensed-Bold.ttf"),
             ]:
                 if rname in ttfs and bname in ttfs:
                     return ttfs[rname], ttfs[bname]
@@ -70,13 +75,12 @@ def _find_font() -> tuple[str, str]:
     if os.path.isdir(win_fonts):
         ttfs = [f for f in os.listdir(win_fonts) if f.lower().endswith(".ttf")]
         if ttfs:
-            # Повертаємо один і той самий для regular і bold (гірше але працює)
             path = os.path.join(win_fonts, ttfs[0])
             return path, path
 
     raise FileNotFoundError(
         "Не знайдено жодного TTF шрифту.\n"
-        "Поклади файли DejaVuSansCondensed.ttf та DejaVuSansCondensed-Bold.ttf "
+        "Поклади файли DejaVuSans.ttf та DejaVuSans-Bold.ttf "
         "в папку проєкту:\n" + script_dir
     )
 
